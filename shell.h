@@ -7,11 +7,19 @@
 #include <unistd.h>
 #include <sys/types.h>
 #include <sys/wait.h>
-#include
-#include
+
+/*decla' of the global environment variable*/
+
+extern char **environ;
 
 /* Function Prototypes */
 void simple_shell_loop(char *shell_name, char **envp);
 void execute_command(char *command, char *shell_name, char **envp);
+
+char **split_line(char *line);
+char *get_full_path(char *command);
+
+int check_builtins(char **args, char *line);
+void handle_env(void); 
 
 #endif /* SIMPLE_SHELL_H */
