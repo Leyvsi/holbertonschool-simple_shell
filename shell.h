@@ -7,8 +7,9 @@
 #include <unistd.h>
 #include <sys/types.h>
 #include <sys/wait.h>
+#include <sys/stat.h>
 
-/*decla' of the global environment variable*/
+/*decla. of the global environment variable*/
 
 extern char **environ;
 
