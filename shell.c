@@ -9,7 +9,7 @@ int main(void)
 	char *line = NULL;
 	size_t len = 0;
 	ssize_t nread;
-	char *argv[1024];
+	char **argv = NULL;
 	char *token;
 	int i;
         int status;
@@ -25,6 +25,8 @@ int main(void)
 	  if (nread == -1) /* handle EOF (Ctrl+D) */
 	    {
 		free(line);
+                if (argv)
+                    free_argv(argv);
 		exit(EXIT_SUCCESS);
 	    }
 
@@ -52,8 +54,11 @@ int main(void)
            argv[i] = NULL; /* null terminate array */
 
 
-/* execute command if input is not empty */
-           if (argv[0] != NULL)
+/* fofr skip empty input */
+           if (!argv || !argv[0]
+               continue;
+
+ /* check for built-in commands */
 
            if (handle_builtin(argv))
              {
@@ -61,6 +66,7 @@ int main(void)
                continue;
              }
 
+ /* execute external command */
 
              {
 	        child_pid = fork();
@@ -72,18 +78,22 @@ int main(void)
 		exit(EXIT_FAILURE);
 		}
 	     }
-	        else /* parent process */
+	        else if (child_pid > 0)/* parent process */
 		     {
 		       waitpid(child_pid, &status, 0);
+                     }
+                     else
+                     {
+		       perror("fork");
+
+                     }
 
                  free_args(argv);
                  argv = NULL;
 
-                      }
-		    }
+                 }
 
-             }
-	       free(line);
+               free(line);
                if (argv)
                    free_args(argv);
 
