@@ -11,7 +11,8 @@ int main(void)
 	ssize_t nread;
 	char *argv[1024];
 	char *token;
-	int i, status;
+	int i;
+        int status;
 	pid_t child_pid;
 
 	while (1)
@@ -50,13 +51,13 @@ int main(void)
 			{
 				if (execve(argv[0], argv, environ) == -1)
 				{
-					perror("./shell");
+					perror("hsh");
 					exit(EXIT_FAILURE);
 				}
 			}
 			else /* parent process */
 			{
-				wait(&status);
+				waitpid(child_pid, &status, 0);
 			}
 		}
 	}
