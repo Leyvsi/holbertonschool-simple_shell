@@ -21,6 +21,9 @@ char **split_line(char *line);
 char *get_full_path(char *command);
 
 int check_builtins(char **args, char *line);
-void handle_env(void); 
+void handle_env(void);
+
+int handle_builtin(char **args);
+void free_args(char **args);
 
 #endif /* SIMPLE_SHELL_H */
