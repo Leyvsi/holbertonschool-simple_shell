@@ -30,9 +30,11 @@ int main(void)
 		exit(EXIT_SUCCESS);
 	    }
 
+
           /* rm newline character */
 	  if (line[nread - 1] == '\n')
 	     line[nread - 1] = '\0';
+
 
           /* tokenize input into arguments */
 	  i = 0;
@@ -91,11 +93,13 @@ int main(void)
                  free_args(argv);
                  argv = NULL;
 
-            }
+        }
 
-            free(line);
-            if (argv)
-               free_args(argv);
 
-            return (0);
+        free(line);
+        if (argv)
+            free_args(argv);
+
+
+        return (0);
 }
