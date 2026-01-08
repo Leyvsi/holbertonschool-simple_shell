@@ -8,6 +8,8 @@
  */
 int handle_builtin(char **args)
 {
+	int i;
+
 	if (args[0] == NULL)
 		return (1);
 
@@ -15,6 +17,17 @@ int handle_builtin(char **args)
 	{
 		free_args(args);
 		exit(0);
+	}
+
+	if (strcmp(args[0], "env") == 0)
+	{
+		i = 0;
+		while (environ[i])
+		{
+			printf("%s\n", environ[i]);
+			i++;
+		}
+		return (1);
 	}
 
 	return (0);
