@@ -1,74 +1,82 @@
 #include "shell.h"
 
 /**
- * get_path - Get PATH environment variable
+ * direct_check - check direct path status (exists, exec, directory)
+ * @p: path to test
  *
- * Return: PATH string or NULL
+ * Return: 0 if executable, 126 if permission/dir, 127 if not found
  */
-static char *get_path(void)
+static int direct_check(char *p)
 {
-	int i = 0;
+	struct stat st;
 
-	while (environ[i])
-	{
-		if (strncmp(environ[i], "PATH=", 5) == 0)
-			return (environ[i] + 5);
-		i++;
-	}
-	return (NULL);
+	if (stat(p, &st) == 0 && S_ISDIR(st.st_mode))
+		return (126);
+	if (access(p, F_OK) != 0)
+		return (127);
+	if (access(p, X_OK) != 0)
+		return (126);
+	return (0);
 }
 
 /**
- * get_full_path - Find command in PATH
- * @command: Command to find
+ * join_path - build "dir/cmd" string
+ * @dir: directory
+ * @cmd: command name
  *
- * Return: Full path to command or NULL if not found
+ * Return: newly allocated string or NULL
  */
-char *get_full_path(char *command)
+static char *join_path(char *dir, char *cmd)
 {
-	char *path, *path_copy, *dir, *full_path;
-	struct stat st;
+	char *full;
+	size_t n = strlen(dir) + strlen(cmd) + 2;
 
-	/* If command has '/', check if it exists as-is */
-	if (strchr(command, '/'))
-	{
-		if (stat(command, &st) == 0)
-			return (strdup(command));
+	full = malloc(n);
+	if (!full)
 		return (NULL);
-	}
+	sprintf(full, "%s/%s", dir, cmd);
+	return (full);
+}
 
-	/* Get PATH */
-	path = get_path();
-	if (!path)
-		return (NULL);
+/**
+ * resolve_path - resolve a command using PATH
+ * @cmd: command name
+ * @out: output resolved path (malloc'ed)
+ *
+ * Return: 0 if ok, 126 if found but not executable, 127 if not found
+ */
+int resolve_path(char *cmd, char **out)
+{
+	char *path, *copy, *dir, *full;
+	int rc;
 
-	path_copy = strdup(path);
-	if (!path_copy)
-		return (NULL);
+	*out = NULL;
 
-	/* Search in PATH directories */
-	dir = strtok(path_copy, ":");
+	if (strchr(cmd, '/'))
+		return ((*out = strdup(cmd)) ? direct_check(cmd) : 127);
+
+	path = getenv("PATH");
+	if (!path || !*path)
+		return (127);
+
+	copy = strdup(path);
+	if (!copy)
+		return (127);
+
+	dir = strtok(copy, ":");
 	while (dir)
 	{
-		full_path = malloc(strlen(dir) + strlen(command) + 2);
-		if (!full_path)
-		{
-			free(path_copy);
-			return (NULL);
-		}
-
-		sprintf(full_path, "%s/%s", dir, command);
-
-		if (stat(full_path, &st) == 0)
-		{
-			free(path_copy);
-			return (full_path);
-		}
-
-		free(full_path);
+		if (*dir == '\0')
+			dir = ".";
+		full = join_path(dir, cmd);
+		if (!full)
+			break;
+		rc = direct_check(full);
+		if (rc == 0 || rc == 126)
+			return (free(copy), *out = full, rc);
+		free(full);
 		dir = strtok(NULL, ":");
 	}
-
-	free(path_copy);
-	return (NULL);
+	free(copy);
+	return (127);
 }
