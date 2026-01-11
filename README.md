@@ -90,3 +90,6 @@ Searches executables using the PATH variable
 Leyvsi
 Melissa9513
 AlexLucM
+
+<img width="509" height="764" alt="Capture d&#39;écran 2026-01-11 204752" src="https://github.com/user-attachments/assets/1a1ecd1d-e990-4023-ad13-f16c4dc83069" />
+
