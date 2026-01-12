@@ -26,5 +26,5 @@ int exec_cmd(char **args, char *prog, unsigned int line);
 
 /* errors */
 void print_error(char *prog, unsigned int line, char *cmd, char *msg);
-
+char get_env(charname);
 #endif
